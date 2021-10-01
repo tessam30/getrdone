@@ -1,0 +1,14 @@
+Package: getrdone
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Tim",
+           family = "Essam",
+           role = c("aut", "cre"),
+           email = "tessam@usaid.gov.com")
+Description: This package is designed for working with PEPFAR data focused on Zambia. Numerous munging and plotting functions are provided to quickly process and visualize MSD data. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
