@@ -8,6 +8,14 @@
 \description{
 This package is designed for working with PEPFAR data focused on Zambia. Numerous munging and plotting functions are provided to quickly process and visualize MSD data.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/tessam30/getrdone}
+  \item Report bugs at \url{https://github.com/tessam30/getrdone/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Tim Essam \email{tessam@usaid.gov.com}
 
