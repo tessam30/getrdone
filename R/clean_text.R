@@ -33,18 +33,35 @@ clean_partners <- function(.data){
 
   .data %>%
     dplyr::mutate(primepartner = dplyr::case_when(
-      primpepartner == 'CLINTON HEALTH ACCESS INITIATIVE, INC.' ~ 'CHAI',
-      primpepartner == 'CATHOLIC MEDICAL MISSION BOARD ZAMBIA' ~ 'CMMBZ',
-      primpepartner == 'CENTRE FOR INFECTIOUS DISEASE RESEARCH IN ZAMBIA LIMITED' ~ 'CIDR-Z',
-      primpepartner == 'Chemonics International, Inc.' ~ 'Chemonics',
-      primpepartner == 'John Snow, Incorporated' ~ ' JSI',
-      primpepartner == 'SOCIETY FOR FAMILY HEALTH LIM ITED' ~ 'SFHL',
-      primpepartner == 'Family Health International' ~ "FHI",
-      primpepartner == 'JSI Research And Training Institute, INC' ~ 'JSI-RTI',
-      primpepartner == 'Development Aid From People T o People' ~ 'DAFPTP',
-      primpepartner == 'Zambia Centre For Communicati on Programmes' ~ 'ZCCP',
-      primpepartner == 'Pact, Inc.' ~ 'PACT',
+      primepartner == 'CLINTON HEALTH ACCESS INITIATIVE, INC.' ~ 'CHAI',
+      primepartner == 'CATHOLIC MEDICAL MISSION BOARD ZAMBIA' ~ 'CMMBZ',
+      primepartner == 'CENTRE FOR INFECTIOUS DISEASE RESEARCH IN ZAMBIA LIMITED' ~ 'CIDR-Z',
+      primepartner == 'Chemonics International, Inc.' ~ 'Chemonics',
+      primepartner == 'John Snow, Incorporated' ~ 'JSI',
+      primepartner == 'SOCIETY FOR FAMILY HEALTH LIM ITED' ~ 'SFHL',
+      primepartner == 'Family Health International' ~ "FHI",
+      primepartner == 'JSI Research And Training Institute, INC' ~ 'JSI-RTI',
+      primepartner == 'Development Aid From People T o People' ~ 'DAFPTP',
+      primepartner == 'Zambia Centre For Communicati on Programmes' ~ 'ZCCP',
+      primepartner == 'Pact, Inc.' ~ 'PACT',
       TRUE ~ primepartner
       )
     )
 }
+
+#' Title
+#' Swap targets between mechanisms. Useful for aligning targets across FYs
+#' @param .data
+#' @param mech1
+#' @param mech2
+#'
+#' @return remapped mech codes for targets and results
+#' @export
+#'
+swap_targets <- function(.data, mech1 = "82075", mech2 = "18304") {
+  # Using EQUIP as default as this has to be done each time in FY21
+  .data %>%
+    mutate(mech_code = ifelse(mech_code == {{mech1}}, {{mech2}}, mech_code))
+}
+
+
