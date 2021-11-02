@@ -13,22 +13,22 @@
 bind_ovc_prev <- function(df1 = kp_prev_df, df2 = ovc_df, df3 = pp_prev_df){
 
 prev_ovc_tbl <-
-  bind_rows(df1, df2, df3) %>%
-  mutate(row_type = case_when(
+  dplyr::bind_rows(df1, df2, df3) %>%
+  dplyr::mutate(row_type = dplyr::case_when(
     indicator %in% snapshot_ind ~ "snapshot",
     TRUE ~ "cumulative"
   ),
-  cumulative = case_when(
-    row_type == "cumulative" ~ rowSums(across(contains("qtr"))),
+  cumulative = dplyr::case_when(
+    row_type == "cumulative" ~ rowSums(dplyr::across(tidyselect::contains("qtr"))),
     TRUE ~ qtr4)
   ) %>%
-  filter(is.na(drop_flag) | drop_flag == 0) %>%
-  select(-drop_flag) %>%
-  mutate(mech_code = as.numeric(gsub("[^[:digit:]]+", "", mech_name))) %>%
-  relocate(targets, .after = cumulative) %>%
-  relocate(row_type, .after = last_col()) %>%
-  mutate(`% Achievement` = if_else(targets > 0 & cumulative > 0, cumulative/targets, NA_real_), .after = targets) %>%
-  rename(disag = standardizeddisaggregate)
+  dplyr::filter(is.na(drop_flag) | drop_flag == 0) %>%
+  dplyr::select(-drop_flag) %>%
+  dplyr::mutate(mech_code = as.numeric(gsub("[^[:digit:]]+", "", mech_name))) %>%
+  dplyr::relocate(targets, .after = cumulative) %>%
+  dplyr::relocate(row_type, .after = last_col()) %>%
+  dplyr::mutate(`% Achievement` = if_else(targets > 0 & cumulative > 0, cumulative/targets, NA_real_), .after = targets) %>%
+  dplyr::rename(disag = standardizeddisaggregate)
 
   return(prev_ovc_tbl)
 
