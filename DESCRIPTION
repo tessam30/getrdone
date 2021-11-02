@@ -26,11 +26,14 @@ Imports:
   sf,
   forcats,
   tidyselect,
-  knitr
+  knitr,
+  googlesheets4,
+  stringr,
 Remotes:
     USAID-OHA-SI/glamr,
     USAID-OHA-SI/glitr,
-    USAID-OHA-SI/gophr
+    USAID-OHA-SI/gophr, 
+    USAID-OHA-SI/gisr
 BuildVignettes: true
 VignetteBuilder: knitr
 Depends: 
