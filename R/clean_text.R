@@ -16,6 +16,7 @@ clean_mechs <- function(.data) {
       mech_name == 'USAID/Stop Gender Based Violence Project (Stop GBV)' ~ 'Stop GBV',
       mech_name == 'USAID/Zambia Community HIV Prevention Project (Z-CHPP)' ~ 'Z-CHPP',
       mech_name == '[Placeholder - 85117 Zambia USAID]' ~ '85117 Zambia USAID',
+      mech_name == '[Placeholder - 160806 Zambia USAID]' ~ '160806 Zambia USAID',
       TRUE ~ mech_name)
     )
 }

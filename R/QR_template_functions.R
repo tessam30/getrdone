@@ -73,7 +73,6 @@ create_clin_cw <- function(df) {
 #' @examples
 format_mech_names <- function(df){
   df %>%
-    swap_targets %>%
     dplyr::mutate(
       mech_name = dplyr::case_when(
         mech_name == "Local Treatment Partner" & mech_code == "18304" ~ "EQUIP",

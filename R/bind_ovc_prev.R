@@ -27,7 +27,7 @@ prev_ovc_tbl <-
   dplyr::mutate(mech_code = as.numeric(gsub("[^[:digit:]]+", "", mech_name))) %>%
   dplyr::relocate(targets, .after = cumulative) %>%
   dplyr::relocate(row_type, .after = last_col()) %>%
-  dplyr::mutate(`% Achievement` = if_else(targets > 0 & cumulative > 0, cumulative/targets, NA_real_), .after = targets) %>%
+  dplyr::mutate(`% Achievement` = ifelse(targets > 0 & cumulative > 0, cumulative/targets, NA_real_), .after = targets) %>%
   dplyr::rename(disag = standardizeddisaggregate)
 
   return(prev_ovc_tbl)

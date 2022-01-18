@@ -29,12 +29,7 @@ return_vls_tbl <- function(df) {
   vls_df_pd <-
     vls_df %>%
     dplyr::left_join(vls_peds) %>%
-    dplyr::mutate(fy_stub = dplyr::case_when(
-      period != "targets" ~ str_c("FY", stringr::str_extract(fiscal_year, ".{2}$"), "Q", stringr::str_extract(period, ".{1}$")),
-      period == "targets" ~ str_c("FY", stringr::str_extract(fiscal_year, ".{2}$"), " Targets"),
-      TRUE ~ NA_character_
-    )
-    )
+    make_fy_stub()
 
   vls_df_tgt <- vls_df_pd %>% dplyr::filter(period == "targets")
 

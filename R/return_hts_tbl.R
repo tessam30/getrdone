@@ -1,4 +1,4 @@
-#' Title
+#' Return custom testing table
 #'
 #' @param df A genie extract or MSD data frame
 #'
@@ -6,7 +6,7 @@
 #' @export
 #'
 #' @examples
-return_tst_tbl <- function(df) {
+return_hts_tbl <- function(df) {
 
   # CW indicators
   tst_index_peds <- c("HTS_INDEX", "HTS_INDEX_NEWPOS")

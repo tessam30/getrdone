@@ -124,3 +124,17 @@ sum_special <- function(df) {
 name_column <- function(stub){
   glue::glue("FY{substr(pd, 3, 4)} {stub}")
 }
+
+
+#' Extract the mech_code into a new column
+#'
+#' @param df
+#'
+#' @return a column with just the mech_code
+#' @export
+#'
+#' @examples
+extract_mech_code <- function(df){
+  df %>%
+  mutate(mech_code = as.numeric(gsub("[^[:digit:]]+", "", IM)))
+}
