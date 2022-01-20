@@ -10,7 +10,7 @@
 #'
 #' @examples
 fetch_clinical <- function(){
-  df <- googlesheets4::read_sheet("11hnE4fInDmm4mZCxxREz77yhgRm5cj2KDnNFRkn_WP4", sheet = "Clinical and Prevention", skip = 2)
+  df <- googlesheets4::read_sheet("1amkyCInLzgKSV1LLmVPYTUdbkEtght32Cy2CWvp7-w8", sheet = "Clinical and Prevention", skip = 2)
   return(df)
 }
 
@@ -24,7 +24,7 @@ fetch_clinical <- function(){
 #'
 #' @examples
 fetch_prev_ovc <- function(){
-  df <- googlesheets4::read_sheet("11hnE4fInDmm4mZCxxREz77yhgRm5cj2KDnNFRkn_WP4", sheet = "Prevention and OVC", skip = 2) %>%
+  df <- googlesheets4::read_sheet("1amkyCInLzgKSV1LLmVPYTUdbkEtght32Cy2CWvp7-w8", sheet = "Prevention and OVC", skip = 2) %>%
     dplyr::mutate(mech_code = as.numeric(gsub("[^[:digit:]]+", "", IM)))
   return(df)
 }
@@ -56,6 +56,7 @@ create_clin_cw <- function(df) {
       stringr::str_detect(indicator, " Suppression") ~ stringr::str_replace_all(indicator, " Suppression", "_SUPPRESSION"),
       stringr::str_detect(indicator, "_Coverage \\(\\%\\)") ~ stringr::str_replace_all(indicator, "_Coverage \\(\\%\\)", "_COVERAGE_PCT"),
       stringr::str_detect(indicator, "_Positivity") ~ stringr::str_replace_all(indicator, "_Positivity", "_POSITIVITY"),
+      stringr::str_detect(indicator, "\\(15-29\\)") ~ stringr::str_replace_all(indicator, " \\(15-29\\)", "_15_29"),
       stringr::str_detect(indicator, "Percent of VMMC 15-29") ~ stringr::str_replace_all(indicator, "Percent of VMMC 15-29 against total VMMC", "VMMC_CIRC_15-29_SHARE"),
       TRUE ~ indicator)
     ) %>%
@@ -84,7 +85,10 @@ format_mech_names <- function(df){
         stringr::str_detect(mech_name, "SAFE") ~ "SAFE (17413)",
         stringr::str_detect(mech_name, "GBV") ~ "Stop GBV (18487)",
         stringr::str_detect(mech_name, "Open Doors") ~ "USAID Open Doors (17422)",
-        stringr::str_detect(mech_name, "Zambia") ~ "Z-CHPP (17410)",
+        stringr::str_detect(mech_name, "Zambia Community HIV") ~ "Z-CHPP (17410)",
+        stringr::str_detect(mech_name, "Placeholder - 85117") ~ "Zambia USAID TBD (85117)",
+        stringr::str_detect(mech_name, "Placeholder - 160806") ~ "Zambia USAID TBD (160806)",
+        stringr::str_detect(mech_name, "Maintained Epidemic") ~ "Action HIV (82075)",
         TRUE ~ paste0(mech_name, " (", mech_code, ")")
       )
     ) %>%

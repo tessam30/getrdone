@@ -51,8 +51,8 @@ return_hts_tbl <- function(df) {
            HTS_TST_POSITIVITY = calc_pct(HTS_TST_POS, HTS_TST)
     )
 
-  hts_df <- purrr::reduce(list(hts_tst, hts_index_peds, hts_peds), dplyr::left_join) %>%
-    dplyr::select(-PMTCT_EID_D, -HTS_RECENT_D)
+  hts_df <- purrr::reduce(list(hts_tst, hts_index_peds, hts_peds), dplyr::left_join)
+  hts_df <- hts_df %>%  dplyr::select(-PMTCT_EID_D)
 
   return(hts_df)
 }

@@ -10,7 +10,7 @@
 #' @examples
 return_prev_tbl <- function(df){
 
-  prev_indic <- c("PrEP_CURR", "PrEP_NEW", "TB_PREV", "VMMC_CIRC", "TB_STAT")
+  prev_indic <- c("PrEP_CT", "PrEP_NEW", "PrEP_CURR", "TB_PREV", "VMMC_CIRC", "TB_STAT")
   vmmc_indic <- c("VMMC_CIRC")
 
   vmmc <-
@@ -19,7 +19,7 @@ return_prev_tbl <- function(df){
            trendssemifine %in% c("15-19", "20-24", "25-29"),
            standardizeddisaggregate %in% c("Age/Sex/HIVStatus")) %>%
     sum_indics() %>%
-    dplyr::rename(`VMMC_CIRC_15-29`= VMMC_CIRC)
+    dplyr::rename(`VMMC_CIRC_15_29`= VMMC_CIRC)
 
   prev_df <-
     df %>%
@@ -31,7 +31,7 @@ return_prev_tbl <- function(df){
   prev_all_df <-
     prev_df %>%
     dplyr::left_join(., vmmc) %>%
-    dplyr::mutate(`VMMC_CIRC_15-29_SHARE` = calc_pct(`VMMC_CIRC_15-29`,VMMC_CIRC),
+    dplyr::mutate(`VMMC_CIRC_15-29_SHARE` = calc_pct(`VMMC_CIRC_15_29`,VMMC_CIRC),
            TB_PREV_COVERAGE = calc_pct(TB_PREV_N, TB_PREV_D)) %>%
     dplyr::select(-TB_STAT_D)
 

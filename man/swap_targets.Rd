@@ -5,7 +5,7 @@
 \title{Title
 Swap targets between mechanisms. Useful for aligning targets across FYs}
 \usage{
-swap_targets(.data, mech1 = "82075", mech2 = "18304")
+swap_targets(.data, mech1 = "18304", mech2 = "82075")
 }
 \arguments{
 \item{mech2}{}

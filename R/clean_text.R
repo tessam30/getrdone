@@ -17,6 +17,7 @@ clean_mechs <- function(.data) {
       mech_name == 'USAID/Zambia Community HIV Prevention Project (Z-CHPP)' ~ 'Z-CHPP',
       mech_name == '[Placeholder - 85117 Zambia USAID]' ~ '85117 Zambia USAID',
       mech_name == '[Placeholder - 160806 Zambia USAID]' ~ '160806 Zambia USAID',
+      mech_name == 'Maintained Epidemic Control of HIV' ~ 'Action HIV',
       TRUE ~ mech_name)
     )
 }
@@ -59,7 +60,7 @@ clean_partners <- function(.data){
 #' @return remapped mech codes for targets and results
 #' @export
 #'
-swap_targets <- function(.data, mech1 = "82075", mech2 = "18304") {
+swap_targets <- function(.data, mech1 = "18304", mech2 = "82075") {
   # Using EQUIP as default as this has to be done each time in FY21
   .data %>%
     mutate(mech_code = ifelse(mech_code == {{mech1}}, {{mech2}}, mech_code))
