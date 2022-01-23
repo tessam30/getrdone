@@ -26,7 +26,7 @@ library(googlesheets4)
   merdata <- file.path(glamr::si_path("path_msd"), "Genie")
 
   file_genie <- return_latest(folderpath = merdata,
-                              pattern = "Genie-PSNUByIMs-MultipleOUs-Daily-2022-01-20")
+                              pattern = "Genie-PSNUByIMs-Zambia-Daily-2022-01-23")
                               #pattern = "Genie-PSNUByIMs-MultipleOUs-Daily-")
 
 
@@ -199,7 +199,7 @@ zmb_qtrly_tble <- smoosh_clinical_tbls(zmb_mech_tbl, zmb_usaid_tbl)
 
 
   df_rv_formatted <-
-    df_rv_fmt %>%
+    df_rv %>%
     mutate(across(c(FY21Q1:`FY21 Results`, `FY22Q1`:`FY22 Results`), ~case_when(
       str_detect(indicator_cw, "(POSITIVITY|COVERAGE|SUPPRESSION|SHARE)") ~format(round(.x, 2), nsmall = 2),
       TRUE ~ format(round(.x, 0), nsmall = 0)
@@ -209,3 +209,63 @@ zmb_qtrly_tble <- smoosh_clinical_tbls(zmb_mech_tbl, zmb_usaid_tbl)
            ~format(round(.x, 2), nsmall = 2))
            )
     )
+
+  # WRITING TO EXCEL --------------------------------------------------------
+
+  library(openxlsx)
+
+  # Things to do
+  # 1) Format headers, make text bold and set to 32 pixel height
+  # 2) Hide extra columns
+  # 3) Format %s and numbers
+  # 4) Conditionally color the achievement column (TODO)
+
+  # Row and col range (+1 for header line in Excel)
+  tot_rows <- nrow(fy21q3_df)+1
+  tot_cols <- ncol(fy21q3_df)
+
+  # Set up format
+  options("openxlsx.borderStyle" = "thin")
+
+  wb <- createWorkbook()
+  addWorksheet(wb, "Clinical and Prevention")
+
+
+  # Header 32 pixels and #EAEAEA fill with bold text
+  hs1 <- createStyle(fgFill = "#EAEAEA", halign = "CENTER", textDecoration = "Bold",
+                     border = "Bottom", fontColour = "#414042")
+
+  # Header row height = 32
+  setRowHeights(wb, 1, rows = 1, heights = 32)
+
+  # Add filter
+  addFilter(wb, 1, row = 1, cols = 1:tot_cols)
+
+  # Write in the data
+  writeData(wb, 1, fy21q3_df,  headerStyle = hs1)
+
+  # Format the yes/no columns by quarter
+  negStyle <- createStyle(fontColour = "#c43d4d", bgFill = "#EAEAEA")
+  posStyle <- createStyle(fontColour = "#287c6f", bgFill = "#EAEAEA")
+
+  conditionalFormatting(wb, 1, cols = 4:7, rows = 1:tot_rows, rule = '=="No"', style = negStyle)
+  conditionalFormatting(wb, 1, cols = 4:7, rows = 1:tot_rows, rule = '=="Yes"', style = posStyle)
+
+  # Hide extra columns
+  setColWidths(wb, 1, cols = 1:ncol(fy21q3_df), widths = "auto", hidden = rep(FALSE, length(cols)))
+  setColWidths(wb, 1, cols = 9:10, hidden = rep(TRUE, length(cols)))
+
+  # get row numbers of percent formatting
+  pct_rows <- which(fy21q3_df$row_type == "percent") + 1
+  pct <- createStyle(numFmt = "0%")
+  addStyle(wb, 1, style = pct, rows = pct_rows, cols = 11:20, gridExpand = TRUE)
+  addStyle(wb, 1, style = pct, rows = 2:tot_rows, cols = 21, gridExpand = TRUE)
+
+  # formatting for numbers
+  number_rows <- which(fy21q3_df$row_type %in% c("snapshot", "cumulative")) + 1
+  nbr <- createStyle(numFmt = "#,##0")
+  addStyle(wb, 1, style = nbr, rows = number_rows, cols = 11:20, gridExpand = TRUE)
+
+
+  saveWorkbook(wb, "Dataout/ZMB_FY21Q3_Preliminary_data.xlsx", overwrite = TRUE)
+
