@@ -7,13 +7,13 @@
 #' @export
 #'
 #' @examples
-return_kp_tbl <- function(df){
+return_kp_tbl <- function(df, fy = fy){
 
   # pull the table for kp_prev indicators needed
   kp_prev_df <- df %>%
     dplyr::filter(indicator %in% c("KP_PREV"),
            standardizeddisaggregate %in% c("KeyPop"),
-           fiscal_year == fy,
+           fiscal_year == {{fy}},
            mech_name != "EQUIP (18304)") %>%
     dplyr::mutate(categoryoptioncomboname = stringr::str_remove_all(categoryoptioncomboname, "\\(|\\)| not SW")) %>%
     dplyr::mutate(categoryoptioncomboname = stringr::str_remove(categoryoptioncomboname, " and other enclosed settings"),

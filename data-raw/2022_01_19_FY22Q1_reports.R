@@ -18,6 +18,9 @@ library(here)
 library(readxl)
 library(glue)
 library(googlesheets4)
+library(openxlsx)
+
+devtools::load_all(".")
 
 
 # GLOBALS -----------------------------------------------------------------
@@ -26,7 +29,7 @@ library(googlesheets4)
   merdata <- file.path(glamr::si_path("path_msd"), "Genie")
 
   file_genie <- return_latest(folderpath = merdata,
-                              pattern = "Genie-PSNUByIMs-Zambia-Daily-2022-01-23")
+                              pattern = "PSNUByIMs-Zambia-Daily-2022-01-24")
                               #pattern = "Genie-PSNUByIMs-MultipleOUs-Daily-")
 
 
@@ -35,7 +38,7 @@ library(googlesheets4)
   fy <- source_info(file_genie, return = "fiscal_year")
   qtr <- source_info(file_genie, return = "quarter")
 
-
+  Dataout <- "../Zambezi/Dataout"
 
 #  PREP TEMPLATE DATA AND LOAD -----------------------------------------------------
 
@@ -46,32 +49,34 @@ library(googlesheets4)
 # Fetch template info
   clin_cw <- fetch_clinical() %>% create_clin_cw()
 
-# prev_ovc_df <- fetch_prev_ovc()
-#
-# prev_ovc_mechs <-
-#   fetch_prev_ovc() %>%
-#   distinct(IM) %>%
-#   extract_mech_code() %>%
-#   pull(mech_code)
+  # Prevention OVC indictors not needed for FY22Q1 review
+  # prev_ovc_df <- fetch_prev_ovc()
+  # #
+  # prev_ovc_mechs <-
+  #   fetch_prev_ovc() %>%
+  #   distinct(IM) %>%
+  #   extract_mech_code() %>%
+  #   pull(mech_code)
 
 
 # Munge core data
-df_mechs <-
-  gophr::read_msd(file_genie) %>%
-  filter(fiscal_year %in% c(fy-1, fy)) %>%
-  format_mech_names() %>%
-  filter(mech_code %in% mech_list)
+  df_mechs <-
+    gophr::read_msd(file_genie) %>%
+    filter(fiscal_year %in% c(fy-1, fy)) %>%
+    format_mech_names() %>%
+    filter(mech_code %in% mech_list)
 
-df_usaid <-
-  read_msd(file_genie) %>%
-  filter(fiscal_year %in% c(fy-1, fy),
-         fundingagency == "USAID") %>%
-  mutate(mech_name = "ALL USAID",
-         mech_code = "99999",
-         primeparter = "ALL USAID")
+  df_usaid <-
+    read_msd(file_genie) %>%
+    filter(fiscal_year %in% c(fy-1, fy),
+           fundingagency == "USAID") %>%
+    mutate(mech_name = "ALL USAID",
+           mech_code = "99999",
+           primeparter = "ALL USAID")
 
-clin_cw %>% distinct(indicator, indicator_cw) %>% prinf()
-clin_cw %>% distinct(IM)
+  clin_cw %>% distinct(indicator, indicator_cw) %>% prinf()
+  clin_cw %>% distinct(IM)
+  prev_ovc_df %>% distinct(IM)
 
 
 
@@ -103,24 +108,27 @@ clin_cw %>% distinct(IM)
   prev_all <-   return_prev_tbl(df_mechs)
   prev_usaid <- return_prev_tbl(df_usaid)
 
-# OVC and prevention
-# df_ovc_mechs <-
-#   gophr::read_msd(file_genie) %>%
-#   filter(fiscal_year %in% c(fy),
-#          mech_code %in% prev_ovc_mechs) %>%
-#   format_mech_names()
-#
-# # KP
-# kp_prev_df <- return_kp_tbl(df_ovc_mechs)
-# ovc_df <- return_ovc_tbl(df_ovc_mechs)
-# pp_prev_df <- return_pp_prev(df_ovc_mechs)
+# # OVC and prevention
+#  df_ovc_mechs <-
+#    gophr::read_msd(file_genie) %>%
+#    filter(fiscal_year %in% c(fy-1),
+#           mech_code %in% prev_ovc_mechs) %>%
+#    format_mech_names()
+
+# KP
+# TODO: Build into function a reading of the data quarter, adjust return formulas
+# As needed to account for this
+
+ # kp_prev_df <- return_kp_tbl(df_ovc_mechs, fy-1)
+ # ovc_df <- return_ovc_tbl(df_ovc_mechs, fy-1)
+ # pp_prev_df <- return_pp_prev(df_ovc_mechs, fy-1)
 
 # Bind it all together
-# df <-
-#   fetch_prev_ovc() %>%
-#   select(IM, indicator = `Technical Area`, disag = `Disaggregation Type`, Q1:Q4, mech_code) %>%
-#   left_join(bind_ovc_prev()) %>%
-#   select(-c(fiscal_year, mech_code, mech_name))
+ # df <-
+ #   fetch_prev_ovc() %>%
+ #   select(IM, indicator = `Technical Area`, disag = `Disaggregation Type`, Q1:Q4, mech_code) %>%
+ #   left_join(bind_ovc_prev()) %>%
+ #   select(-c(fiscal_year, mech_code, mech_name))
 
 
 # COMBINE CLINICAL TABLES ------------------------------------------------
@@ -137,7 +145,7 @@ clin_cw %>% distinct(IM)
 
 # Combine all indicators and then append (row bind) the USAID indicators
 # Shooting for 230 (229 really rows)
-zmb_qtrly_tble <- smoosh_clinical_tbls(zmb_mech_tbl, zmb_usaid_tbl)
+  zmb_qtrly_tble <- smoosh_clinical_tbls(zmb_mech_tbl, zmb_usaid_tbl)
 
 
 # CHECK ALINGMENT TO CROSSWALK TABLE ------------------------------------------------------------
@@ -169,10 +177,16 @@ zmb_qtrly_tble <- smoosh_clinical_tbls(zmb_mech_tbl, zmb_usaid_tbl)
     full_join(., zmb_qtrly_tble,
               by = c("IM" = "mech_name",
                      "indicator_cw" = "indicator" )) %>%
-    filter(!is.na(mech_code))
+    filter(!is.na(mech_code)) %>%
+    filter(!is.na(`Program Area`))
 
 
 # FORMAT TABLE ---------------------------------------------------------------
+
+  # Noticing that when the FY22 template was updated, indictors were included
+  # IMs that may never report them (Q1 - Q4 == NO)
+  # Making a flag to drop these rows
+
 
   df_rv <-
     df_rv %>%
@@ -194,7 +208,13 @@ zmb_qtrly_tble <- smoosh_clinical_tbls(zmb_mech_tbl, zmb_usaid_tbl)
       TRUE ~ "cumulative")
     ) %>%
     relocate(`FY21 Results`, .after = `FY21 Targets`) %>%
-    relocate(`FY21 Achievement`, .after = `FY21 Results`)
+    relocate(`FY21 Achievement`, .after = `FY21 Results`) %>%
+    mutate(drop_row_flag = case_when(
+      Q1 == "No" & Q2 == "No" & Q3 == "No" & Q4 == "No" ~ 1,
+      TRUE ~ 0
+      )
+    ) %>%
+    filter(drop_row_flag != 1)
 
 
 
@@ -210,9 +230,12 @@ zmb_qtrly_tble <- smoosh_clinical_tbls(zmb_mech_tbl, zmb_usaid_tbl)
            )
     )
 
+  # Format OVC tab
+
+
   # WRITING TO EXCEL --------------------------------------------------------
 
-  library(openxlsx)
+
 
   # Things to do
   # 1) Format headers, make text bold and set to 32 pixel height
@@ -221,14 +244,15 @@ zmb_qtrly_tble <- smoosh_clinical_tbls(zmb_mech_tbl, zmb_usaid_tbl)
   # 4) Conditionally color the achievement column (TODO)
 
   # Row and col range (+1 for header line in Excel)
-  tot_rows <- nrow(fy21q3_df)+1
-  tot_cols <- ncol(fy21q3_df)
+  tot_rows <- nrow(df_rv)+1
+  tot_cols <- ncol(df_rv)
+  sheet_name <- "Clinical and Prevention"
 
   # Set up format
   options("openxlsx.borderStyle" = "thin")
 
   wb <- createWorkbook()
-  addWorksheet(wb, "Clinical and Prevention")
+  addWorksheet(wb, sheet_name)
 
 
   # Header 32 pixels and #EAEAEA fill with bold text
@@ -242,7 +266,7 @@ zmb_qtrly_tble <- smoosh_clinical_tbls(zmb_mech_tbl, zmb_usaid_tbl)
   addFilter(wb, 1, row = 1, cols = 1:tot_cols)
 
   # Write in the data
-  writeData(wb, 1, fy21q3_df,  headerStyle = hs1)
+  writeData(wb, 1, df_rv,  headerStyle = hs1)
 
   # Format the yes/no columns by quarter
   negStyle <- createStyle(fontColour = "#c43d4d", bgFill = "#EAEAEA")
@@ -252,20 +276,26 @@ zmb_qtrly_tble <- smoosh_clinical_tbls(zmb_mech_tbl, zmb_usaid_tbl)
   conditionalFormatting(wb, 1, cols = 4:7, rows = 1:tot_rows, rule = '=="Yes"', style = posStyle)
 
   # Hide extra columns
-  setColWidths(wb, 1, cols = 1:ncol(fy21q3_df), widths = "auto", hidden = rep(FALSE, length(cols)))
+  setColWidths(wb, 1, cols = 1:ncol(df_rv_formatted), widths = "auto", hidden = rep(FALSE, length(cols)))
   setColWidths(wb, 1, cols = 9:10, hidden = rep(TRUE, length(cols)))
 
   # get row numbers of percent formatting
-  pct_rows <- which(fy21q3_df$row_type == "percent") + 1
+  pct_rows <- which(df_rv$row_type == "percent") + 1
   pct <- createStyle(numFmt = "0%")
-  addStyle(wb, 1, style = pct, rows = pct_rows, cols = 11:20, gridExpand = TRUE)
-  addStyle(wb, 1, style = pct, rows = 2:tot_rows, cols = 21, gridExpand = TRUE)
+  addStyle(wb, 1, style = pct, rows = pct_rows, cols = 11:24, gridExpand = TRUE)
+  addStyle(wb, 1, style = pct, rows = 2:tot_rows, cols = (c(17, 24)), gridExpand = TRUE)
 
   # formatting for numbers
-  number_rows <- which(fy21q3_df$row_type %in% c("snapshot", "cumulative")) + 1
+  number_rows <- which(df_rv$row_type %in% c("snapshot", "cumulative")) + 1
   nbr <- createStyle(numFmt = "#,##0")
-  addStyle(wb, 1, style = nbr, rows = number_rows, cols = 11:20, gridExpand = TRUE)
+  addStyle(wb, 1, style = nbr, rows = number_rows, cols = (c(11:16, 18:23)), gridExpand = TRUE)
+
+  # freeze first row
+  freezePane(wb, sheet_name, firstActiveRow = 2, firstActiveCol = 4)
 
 
-  saveWorkbook(wb, "Dataout/ZMB_FY21Q3_Preliminary_data.xlsx", overwrite = TRUE)
+  qtrly_report_name <- glue("ZMB_{paste0(fy, 'Q', qtr)}_Preliminary_data.xlsx")
+  write_path <- file.path(Dataout, qtrly_report_name)
+
+  saveWorkbook(wb, file = write_path, overwrite = TRUE)
 
