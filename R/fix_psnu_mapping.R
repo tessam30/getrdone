@@ -20,7 +20,7 @@ fix_psnu_mapping <- function(df){
       psnu == "Itezhi-tezhi District" & fiscal_year < 2022 ~ "glHv5VLHKi0",
       psnu == "Chama District" & fiscal_year < 2022 ~ "QPIMzDJei82",
       psnu == "Chirundu District" & fiscal_year < 2022 ~ "fKHv5qcp1nN",
-      TRUE ~ snu1)
+      TRUE ~ snu1uid)
     )
 }
 
