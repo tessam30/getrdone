@@ -37,8 +37,8 @@ return_vls_tbl <- function(df) {
     dplyr::filter(period != "targets") %>%
     dplyr::arrange(mech_code, fy_stub) %>%
     dplyr::group_by(mech_code) %>%
-    dplyr::mutate(TX_PVLS_COVERAGE = calc_pct(TX_PVLS_D, lag(TX_CURR, n = 2)),
-           TX_PVLS_COVERAGE_PEDS = calc_pct(TX_PVLS_D_PEDS, lag(TX_CURR_PEDS, n = 2)),
+    dplyr::mutate(TX_PVLS_COVERAGE = calc_pct(TX_PVLS_D, dplyr::lag(TX_CURR, n = 2)),
+           TX_PVLS_COVERAGE_PEDS = calc_pct(TX_PVLS_D_PEDS, dplyr::lag(TX_CURR_PEDS, n = 2)),
            TX_PVLS_SUPPRESSION = calc_pct(TX_PVLS_N, TX_PVLS_D),
            TX_PVLS_SUPPRESSION_PEDS = calc_pct(TX_PVLS_N_PEDS, TX_PVLS_D_PEDS)) %>%
     dplyr::bind_rows(vls_df_tgt)%>%
