@@ -4,10 +4,10 @@
 \alias{fix_psnu_mapping}
 \title{Fix PSNU Mapping to SNU1}
 \usage{
-fix_psnu_mapping(df)
+fix_psnu_mapping(.data)
 }
 \arguments{
-\item{df}{}
+\item{.data}{msd dataframe with full psnu and snu1 names intact}
 }
 \value{
 
