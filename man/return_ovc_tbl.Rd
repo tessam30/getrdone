@@ -4,7 +4,7 @@
 \alias{return_ovc_tbl}
 \title{Return a table of ovc indicators}
 \usage{
-return_ovc_tbl(df)
+return_ovc_tbl(df, fy = fy)
 }
 \arguments{
 \item{df}{A genie extract or MSD data frame}

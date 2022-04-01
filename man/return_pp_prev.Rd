@@ -4,7 +4,7 @@
 \alias{return_pp_prev}
 \title{Return prevention indicator}
 \usage{
-return_pp_prev(df)
+return_pp_prev(df, fy = fy)
 }
 \arguments{
 \item{df}{A genie extract or MSD data frame}

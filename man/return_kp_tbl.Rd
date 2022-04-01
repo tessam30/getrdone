@@ -4,7 +4,7 @@
 \alias{return_kp_tbl}
 \title{Return key population indicator table}
 \usage{
-return_kp_tbl(df)
+return_kp_tbl(df, fy = fy)
 }
 \arguments{
 \item{df}{A genie extract or MSD data frame}
